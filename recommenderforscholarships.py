@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # Prompt the user for their API Key in the sidebar
-openai_api_key = st.sidebar.text_input("OpenAI API Key", type="")
+openai_api_key = st.sidebar.text_input("OpenAI API Key", type="default")
 
 if not openai_api_key:
     st.error("Please enter your OpenAI API Key in the sidebar.")
