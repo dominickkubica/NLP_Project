@@ -2,9 +2,8 @@ from rapidfuzz import fuzz
 from rapidfuzz import process
 import re
 import pandas as pd
-from dotenv import load_dotenv
-import os
 from openai import OpenAI
+import json
 
 # Load the scholarship CSV
 try:
@@ -13,9 +12,7 @@ try:
 except Exception as e:
     raise RuntimeError(f"Error loading the scholarship CSV: {e}")
 
-
-# Refine Prompt Function
-def refine_prompt(user_input):
+def refine_prompt(user_input, client):
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -30,7 +27,6 @@ def refine_prompt(user_input):
     except Exception as e:
         print(f"Error refining prompt: {e}")
         return None
-
 
 def search_scholarships(refined_prompt, df, client):
     try:
@@ -63,8 +59,6 @@ def search_scholarships(refined_prompt, df, client):
         # Clean up common issues with raw JSON-like output
         raw_output = raw_output.replace("\n", "").replace("\t", "").strip()
 
-        # Attempt to parse raw_output into a JSON-like list of dictionaries
-        import json
         try:
             parsed_output = json.loads(raw_output)
             print("Parsed JSON Output:", parsed_output)
@@ -78,14 +72,12 @@ def search_scholarships(refined_prompt, df, client):
         print(f"Error in search_scholarships: {e}")
         return []
 
-
-# Updated Run Pipeline Function
 def run_pipeline(user_query, client):
     """
     End-to-end pipeline: Refine prompt, search scholarships, and return results.
     """
     # Step 1: Refine the prompt
-    refined_prompt = refine_prompt(user_query)
+    refined_prompt = refine_prompt(user_query, client)
     if not refined_prompt:
         print("Error: Refined prompt is empty or invalid.")
         return pd.DataFrame({"Message": ["Failed to refine the prompt."]})
