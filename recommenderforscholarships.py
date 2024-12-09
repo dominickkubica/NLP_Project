@@ -4,8 +4,8 @@
 import pandas as pd
 import streamlit as st
 from datetime import datetime
-from scholarship_pipeline import run_pipeline
 from openai import OpenAI
+from scholarship_pipeline import run_pipeline  # Make sure this imports the updated pipeline code (see below)
 
 # Configure the page
 st.set_page_config(
@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # Prompt the user for their API Key in the sidebar
-openai_api_key = st.sidebar.text_input("OpenAI API Key", type="default")
+openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")  # "password" hides the key
 
 if not openai_api_key:
     st.error("Please enter your OpenAI API Key in the sidebar.")
@@ -23,8 +23,6 @@ if not openai_api_key:
 
 # Initialize OpenAI client with the provided API key
 client = OpenAI(api_key=openai_api_key)
-
-# Now you can use 'client' anywhere in your code
 
 # Sidebar navigation
 st.sidebar.title("📚 Navigation")
@@ -153,4 +151,3 @@ elif nav_option == "ℹ️ About":
     Built with ❤️ for SCU students.
     """)
     st.markdown("[Visit SCU Financial Aid Office](https://www.scu.edu/financial-aid/)")
-
