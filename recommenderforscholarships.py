@@ -6,6 +6,7 @@ import streamlit as st
 from datetime import datetime
 from openai import OpenAI
 from scholarship_pipeline import run_pipeline
+from streamlit_calendar import calendar
 
 # Configure the page
 st.set_page_config(
@@ -216,3 +217,12 @@ elif nav_option == "ℹ️ About":
     """)
     st.markdown("[Visit SCU Financial Aid Office](https://www.scu.edu/financial-aid/)")
     st.markdown("Feel free to [contact us](mailto:info@scu.edu) for more information or assistance.")
+
+
+
+
+
+
+
+
+
