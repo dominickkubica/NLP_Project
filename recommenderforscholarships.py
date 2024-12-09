@@ -25,16 +25,14 @@ if not openai_api_key:
 # Initialize OpenAI client
 client = OpenAI(api_key=openai_api_key)
 
-# Add some global styling and a banner image or color
+# Add global styling and CSS
 st.markdown("""
 <style>
-/* Global style */
 body {
     background: #fafafa;
     font-family: "Helvetica Neue", Arial, sans-serif;
 }
 
-/* A nice red divider */
 hr.custom-hr {
     border: none;
     border-top: 2px solid #f44336;
@@ -42,7 +40,6 @@ hr.custom-hr {
     margin: 20px 0;
 }
 
-/* Table styling */
 .styled-table {
     border-collapse: collapse;
     margin: 25px 0;
@@ -51,7 +48,6 @@ hr.custom-hr {
     font-family: sans-serif;
 }
 
-/* Table header background & text */
 .styled-table thead tr {
     background-color: #f44336;
     color: #ffffff;
@@ -59,23 +55,19 @@ hr.custom-hr {
     font-weight: bold;
 }
 
-/* Table cells */
 .styled-table th, .styled-table td {
     border: 1px solid #dddddd;
     padding: 12px;
 }
 
-/* Alternate row background */
 .styled-table tbody tr:nth-of-type(even) {
     background-color: #fef2f2;
 }
 
-/* Hover effect on rows */
 .styled-table tbody tr:hover {
     background-color: #fde0e0;
 }
 
-/* Highlight first column or specific text if you want */
 .styled-table tbody tr td:first-child {
     font-weight: bold;
     color: #c62828;
@@ -83,25 +75,22 @@ hr.custom-hr {
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar navigation
+# Add "📅 Calendar View" to the navigation
 st.sidebar.title("📚 Navigation")
-nav_option = st.sidebar.radio("Go to:", ["🏠 Home", "🎓 Find Scholarships", "📊 Statistics", "ℹ️ About"])
+nav_option = st.sidebar.radio("Go to:", ["🏠 Home", "🎓 Find Scholarships", "📊 Statistics", "ℹ️ About", "📅 Calendar View"])
 
 # Home Page
 if nav_option == "🏠 Home":
     st.markdown("<h1 style='color:#c62828; text-align:center;'>🎓 Welcome to SCU Scholarship Finder!</h1>", unsafe_allow_html=True)
-
-    # Personalized greeting based on time of day
     st.subheader("Hello!👋")
     st.markdown("<hr class='custom-hr'>", unsafe_allow_html=True)
 
-    # Introductory Text
     st.markdown("""
     **Discover scholarships tailored for Santa Clara University students.**  
     Use this platform to explore funding opportunities, get personalized recommendations, and plan for upcoming deadlines.
     """)
 
-    # Quick Links Section
+    # Quick Links
     st.markdown("### 🔗 Quick Links")
     st.markdown("""
     - [SCU Financial Aid Office](https://www.scu.edu/financialaid/)
@@ -109,7 +98,7 @@ if nav_option == "🏠 Home":
     - [SCU Career Center](https://www.scu.edu/careercenter/)
     """)
 
-    # Scholarship Tips Section
+    # Scholarship Tips
     st.markdown("### 💡 Scholarship Tips")
     st.markdown("""
     - **Start Early**: Begin your search and application process well in advance.
@@ -125,7 +114,7 @@ if nav_option == "🏠 Home":
     - **Graduate Assistantship Grant**: January 10, 2025  
     """)
 
-    # FAQs Section
+    # FAQs
     st.markdown("### ❓ FAQs")
     st.markdown("""
     - **Who can apply for scholarships?**  
@@ -143,36 +132,25 @@ elif nav_option == "🎓 Find Scholarships":
     st.header("🎓 Find Scholarships")
     st.markdown("<hr class='custom-hr'>", unsafe_allow_html=True)
 
-    # Collect user input
     user_query = st.text_area("Describe the type of scholarship you're looking for (e.g., major, GPA, financial need):")
     
-    # Submit and display results
     if st.button("🔍 Find Scholarships"):
         with st.spinner("Searching for scholarships..."):
-            # Pass the query and client to the pipeline
             search_results = run_pipeline(user_query, client)
 
-            # Debug: Log the raw output for verification
-            print("Processed Search Results:", search_results)
-
-        # Handle DataFrame-based output
         if isinstance(search_results, pd.DataFrame) and not search_results.empty:
             st.subheader("✨ Search Results (Table View)")
-            # Convert DataFrame to HTML with classes for styling
             html_table = search_results.to_html(classes="styled-table", index=False, escape=False)
             st.markdown(html_table, unsafe_allow_html=True)
 
-        # Handle dictionary-based or structured list-based output
         elif isinstance(search_results, list) and search_results:
             st.subheader("✨ Search Results (Detailed View)")
-            # If you want to style each scholarship in red and with padding:
             for i, scholarship in enumerate(search_results, start=1):
                 name = scholarship.get("Name", "N/A")
                 description = scholarship.get("Description", "No description provided.")
                 eligibility = scholarship.get("Eligibility", "No eligibility criteria provided.")
                 url = scholarship.get("URL", "No URL provided.")
 
-                # Use HTML to style each scholarship card
                 scholarship_html = f"""
                 <div style="border:2px solid #f44336; border-radius:5px; background:#fff5f5; padding:15px; margin-bottom:20px;">
                     <h3 style="color:#c62828;">{i}. {name}</h3>
@@ -198,8 +176,8 @@ elif nav_option == "📊 Statistics":
     - **Graduate Aid**: 10%.
     """)
 
-    # You could add a simple chart or a progress bar
-    st.progress(0.3)  # For merit-based scholarships, as an example
+    # Simple progress indicator
+    st.progress(0.3)
 
 # About Page
 elif nav_option == "ℹ️ About":
@@ -219,10 +197,95 @@ elif nav_option == "ℹ️ About":
     st.markdown("Feel free to [contact us](mailto:info@scu.edu) for more information or assistance.")
 
 
+# Scholarship data for the calendar
+datacal = {
+    "Scholarship Name": [
+        "🎓 Kuru Footsteps to Your Future Scholarship",
+        "💡 Alert1 Students for Seniors Scholarship",
+        "⭐ Blankstyle Scholarship Opportunity #1",
+        "🚀 Innovation In Education Scholarship",
+        "📘 The Bert & Phyllis Lamb Prize in Political Science",
+        "🌍 New Beginnings Immigrant Scholarship",
+    ],
+    "Date Due": [
+        "2024-12-20",
+        "2025-01-10",
+        "2024-12-31",
+        "2024-10-15",
+        "2025-02-14",
+        "2024-10-18",
+    ],
+    "Summary": [
+        "This scholarship awards $1,000 to high school seniors or college students pursuing their academic goals. To apply: Prepare a personal statement highlighting your ambitions and submit by December 20, 2024.",
+        "A $500 award for students committed to improving senior care. Write a 300-word essay about your aspirations in this field. Apply by January 10, 2025.",
+        "A $1,000 bi-annual scholarship to support college expenses. Explain how this scholarship will help you achieve your goals. Deadline: December 31, 2024.",
+        "A $500 scholarship recognizing students with innovative projects that benefit their community. Describe your project and submit by October 15, 2024.",
+        "Honors excellence in Political Science. Submit a well-researched paper (up to 6,000 words) and an abstract by February 14, 2025.",
+        "Supports first-generation immigrant students. Write an essay about your immigrant experience and career aspirations. Deadline: October 18, 2024.",
+    ],
+}
 
+dfcal = pd.DataFrame(datacal)
+dfcal["Date Due"] = pd.to_datetime(dfcal["Date Due"])
 
+# Calendar View Page
+elif nav_option == "📅 Calendar View":
+    st.title("📅 Scholarship Calendar")
+    st.markdown("<hr class='custom-hr'>", unsafe_allow_html=True)
 
+    col1, col2 = st.columns([2, 1])
 
+    if "current_month" not in st.session_state:
+        st.session_state.current_month = datetime.now().month
+    if "current_year" not in st.session_state:
+        st.session_state.current_year = datetime.now().year
+
+    # Prepare events dictionary
+    events = {}
+    for _, row in dfcal.iterrows():
+        event_date = row["Date Due"].strftime("%Y-%m-%d")
+        if event_date not in events:
+            events[event_date] = []
+        events[event_date].append(row["Scholarship Name"])
+
+    # Combine events for display (each date's scholarships joined by newline)
+    events = {date: "\n".join(sch) for date, sch in events.items()}
+
+    with col1:
+        st.subheader("📆 Calendar")
+        selected_event = calendar(events)
+
+        if selected_event and "currentStart" in selected_event:
+            new_start_date = selected_event["currentStart"].split("T")[0]
+            new_start_datetime = pd.Timestamp(new_start_date)
+            st.session_state.current_month = new_start_datetime.month
+            st.session_state.current_year = new_start_datetime.year
+
+    with col2:
+        st.subheader("📋 All Scholarships")
+        for _, row in dfcal.iterrows():
+            st.markdown(
+                f"**{row['Scholarship Name']}**  \n"
+                f"🗓 **Due Date**: {row['Date Due'].strftime('%B %d, %Y')}"
+            )
+
+    st.subheader("🎯 Selected Date Details")
+    if selected_event and "dateClick" in selected_event:
+        selected_date = selected_event["dateClick"]["date"].split("T")[0]
+        selected_scholarships = dfcal[dfcal["Date Due"] == pd.Timestamp(selected_date)]
+        if not selected_scholarships.empty:
+            for _, row in selected_scholarships.iterrows():
+                st.markdown(
+                    f"""
+                    ### {row['Scholarship Name']}
+                    - **Due Date**: {row['Date Due'].strftime('%B %d, %Y')}
+                    - **Details**: {row['Summary']}
+                    """
+                )
+        else:
+            st.write(f"No scholarships due on {selected_date}.")
+    else:
+        st.write("Click on a date in the calendar to view details.")
 
 
 
