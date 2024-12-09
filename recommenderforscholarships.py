@@ -25,21 +25,19 @@ if not openai_api_key:
 # Initialize OpenAI client
 client = OpenAI(api_key=openai_api_key)
 
-# Add global styling and CSS
+# Global CSS and styling
 st.markdown("""
 <style>
 body {
     background: #fafafa;
     font-family: "Helvetica Neue", Arial, sans-serif;
 }
-
 hr.custom-hr {
     border: none;
     border-top: 2px solid #f44336;
     width: 50px;
     margin: 20px 0;
 }
-
 .styled-table {
     border-collapse: collapse;
     margin: 25px 0;
@@ -47,27 +45,22 @@ hr.custom-hr {
     font-size: 1em;
     font-family: sans-serif;
 }
-
 .styled-table thead tr {
     background-color: #f44336;
     color: #ffffff;
     text-align: left;
     font-weight: bold;
 }
-
 .styled-table th, .styled-table td {
     border: 1px solid #dddddd;
     padding: 12px;
 }
-
 .styled-table tbody tr:nth-of-type(even) {
     background-color: #fef2f2;
 }
-
 .styled-table tbody tr:hover {
     background-color: #fde0e0;
 }
-
 .styled-table tbody tr td:first-child {
     font-weight: bold;
     color: #c62828;
@@ -75,11 +68,41 @@ hr.custom-hr {
 </style>
 """, unsafe_allow_html=True)
 
-# Add "📅 Calendar View" to the navigation
+# Prepare the data for the calendar page BEFORE the navigation logic
+datacal = {
+    "Scholarship Name": [
+        "🎓 Kuru Footsteps to Your Future Scholarship",
+        "💡 Alert1 Students for Seniors Scholarship",
+        "⭐ Blankstyle Scholarship Opportunity #1",
+        "🚀 Innovation In Education Scholarship",
+        "📘 The Bert & Phyllis Lamb Prize in Political Science",
+        "🌍 New Beginnings Immigrant Scholarship",
+    ],
+    "Date Due": [
+        "2024-12-20",
+        "2025-01-10",
+        "2024-12-31",
+        "2024-10-15",
+        "2025-02-14",
+        "2024-10-18",
+    ],
+    "Summary": [
+        "This scholarship awards $1,000 to high school seniors or college students pursuing their academic goals. Prepare a personal statement and apply by December 20, 2024.",
+        "A $500 award for students dedicated to improving senior care. Write a 300-word essay. Deadline: January 10, 2025.",
+        "A $1,000 bi-annual scholarship for college expenses. Explain how this scholarship helps your goals. Deadline: December 31, 2024.",
+        "A $500 scholarship for innovative community projects. Describe your project and submit by October 15, 2024.",
+        "Honors excellence in Political Science. Submit a well-researched paper by February 14, 2025.",
+        "Supports first-generation immigrant students. Write an essay about your immigrant experience, due October 18, 2024.",
+    ],
+}
+dfcal = pd.DataFrame(datacal)
+dfcal["Date Due"] = pd.to_datetime(dfcal["Date Due"])
+
+# Sidebar navigation
 st.sidebar.title("📚 Navigation")
 nav_option = st.sidebar.radio("Go to:", ["🏠 Home", "🎓 Find Scholarships", "📊 Statistics", "ℹ️ About", "📅 Calendar View"])
 
-# Home Page
+# Navigation logic
 if nav_option == "🏠 Home":
     st.markdown("<h1 style='color:#c62828; text-align:center;'>🎓 Welcome to SCU Scholarship Finder!</h1>", unsafe_allow_html=True)
     st.subheader("Hello!👋")
@@ -127,13 +150,12 @@ if nav_option == "🏠 Home":
 
     st.balloons()
 
-# Scholarship Finder Page
 elif nav_option == "🎓 Find Scholarships":
     st.header("🎓 Find Scholarships")
     st.markdown("<hr class='custom-hr'>", unsafe_allow_html=True)
 
     user_query = st.text_area("Describe the type of scholarship you're looking for (e.g., major, GPA, financial need):")
-    
+
     if st.button("🔍 Find Scholarships"):
         with st.spinner("Searching for scholarships..."):
             search_results = run_pipeline(user_query, client)
@@ -142,7 +164,6 @@ elif nav_option == "🎓 Find Scholarships":
             st.subheader("✨ Search Results (Table View)")
             html_table = search_results.to_html(classes="styled-table", index=False, escape=False)
             st.markdown(html_table, unsafe_allow_html=True)
-
         elif isinstance(search_results, list) and search_results:
             st.subheader("✨ Search Results (Detailed View)")
             for i, scholarship in enumerate(search_results, start=1):
@@ -164,7 +185,6 @@ elif nav_option == "🎓 Find Scholarships":
             st.subheader("🚫 No Results Found")
             st.markdown("Sorry, no scholarships matched your query. Please try a different description.")
 
-# Statistics Page
 elif nav_option == "📊 Statistics":
     st.header("📊 Scholarship Statistics")
     st.markdown("<hr class='custom-hr'>", unsafe_allow_html=True)
@@ -176,10 +196,9 @@ elif nav_option == "📊 Statistics":
     - **Graduate Aid**: 10%.
     """)
 
-    # Simple progress indicator
+    # Example progress indicator
     st.progress(0.3)
 
-# About Page
 elif nav_option == "ℹ️ About":
     st.header("ℹ️ About This App")
     st.markdown("<hr class='custom-hr'>", unsafe_allow_html=True)
@@ -196,39 +215,6 @@ elif nav_option == "ℹ️ About":
     st.markdown("[Visit SCU Financial Aid Office](https://www.scu.edu/financial-aid/)")
     st.markdown("Feel free to [contact us](mailto:info@scu.edu) for more information or assistance.")
 
-
-# Scholarship data for the calendar
-datacal = {
-    "Scholarship Name": [
-        "🎓 Kuru Footsteps to Your Future Scholarship",
-        "💡 Alert1 Students for Seniors Scholarship",
-        "⭐ Blankstyle Scholarship Opportunity #1",
-        "🚀 Innovation In Education Scholarship",
-        "📘 The Bert & Phyllis Lamb Prize in Political Science",
-        "🌍 New Beginnings Immigrant Scholarship",
-    ],
-    "Date Due": [
-        "2024-12-20",
-        "2025-01-10",
-        "2024-12-31",
-        "2024-10-15",
-        "2025-02-14",
-        "2024-10-18",
-    ],
-    "Summary": [
-        "This scholarship awards $1,000 to high school seniors or college students pursuing their academic goals. To apply: Prepare a personal statement highlighting your ambitions and submit by December 20, 2024.",
-        "A $500 award for students committed to improving senior care. Write a 300-word essay about your aspirations in this field. Apply by January 10, 2025.",
-        "A $1,000 bi-annual scholarship to support college expenses. Explain how this scholarship will help you achieve your goals. Deadline: December 31, 2024.",
-        "A $500 scholarship recognizing students with innovative projects that benefit their community. Describe your project and submit by October 15, 2024.",
-        "Honors excellence in Political Science. Submit a well-researched paper (up to 6,000 words) and an abstract by February 14, 2025.",
-        "Supports first-generation immigrant students. Write an essay about your immigrant experience and career aspirations. Deadline: October 18, 2024.",
-    ],
-}
-
-dfcal = pd.DataFrame(datacal)
-dfcal["Date Due"] = pd.to_datetime(dfcal["Date Due"])
-
-# Calendar View Page
 elif nav_option == "📅 Calendar View":
     st.title("📅 Scholarship Calendar")
     st.markdown("<hr class='custom-hr'>", unsafe_allow_html=True)
@@ -240,7 +226,7 @@ elif nav_option == "📅 Calendar View":
     if "current_year" not in st.session_state:
         st.session_state.current_year = datetime.now().year
 
-    # Prepare events dictionary
+    # Prepare events
     events = {}
     for _, row in dfcal.iterrows():
         event_date = row["Date Due"].strftime("%Y-%m-%d")
@@ -248,7 +234,7 @@ elif nav_option == "📅 Calendar View":
             events[event_date] = []
         events[event_date].append(row["Scholarship Name"])
 
-    # Combine events for display (each date's scholarships joined by newline)
+    # Combine scholarships for each date
     events = {date: "\n".join(sch) for date, sch in events.items()}
 
     with col1:
@@ -286,6 +272,3 @@ elif nav_option == "📅 Calendar View":
             st.write(f"No scholarships due on {selected_date}.")
     else:
         st.write("Click on a date in the calendar to view details.")
-
-
-
