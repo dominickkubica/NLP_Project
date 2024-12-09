@@ -7,6 +7,8 @@ from datetime import datetime
 from scholarship_pipeline import run_pipeline
 from openai import OpenAI
 
+set_page_config()
+
 # Prompt the user for their API Key in the sidebar
 openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
 
