@@ -3,3 +3,4 @@ streamlit
 openai
 rapidfuzz
 python-dotenv
+streamlit-calendar
